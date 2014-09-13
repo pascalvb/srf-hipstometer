@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/chartist.css" rel="stylesheet">
+</head>
+<body>
+
+<!--
+<div class="spotify-player">
+    <iframe width="300" height="800" src="https://embed.spotify.com/?uri=spotify:trackset:Played+Songs:5Z7ygHQo02SUrFmcgpwsKW,1x6ACsKV4UdWS2FMuPFUiT,4bi73jCM02fMpkI11Lqmfe" frameborder="0" allowtransparency="true"></iframe>
+</div>
+-->
+<div class="lyrics"></div>
+<div class="stream">
+
+</div>
+<div class="youtube virus"></div>
+<div class="youtube srf3"></div>
+<div class="youtube srf1"></div>
+<div class="chart">
+    <canvas id="myChart" width="818" height="150" style="width: 818px; height: 150px;"></canvas>
+</div>
+
+<script src=http://code.jquery.com/jquery-2.1.1.min.js ></script>
+<script src=js/chartist.js ></script>
+<script src=http://cdn.pubnub.com/pubnub.min.js ></script>
+<script>(function(){
+    var channel = "6VN85t32994Kb46KQu0fq1Bd6Jw8He04_dls_7"
+    var pubnub = PUBNUB.init({
+        subscribe_key : 'sub-2f430857-f376-11e1-bd7c-41ff068715f9'
+    })
+    pubnub.time(
+            function(time){
+                console.log(time)
+            }
+    );
+
+    pubnub.subscribe({
+        channel : '6VN85t32994Kb46KQu0fq1Bd6Jw8He04_dls_7',
+        message : function(m){
+            sendData(m, 'srf3');
+        }
+    });
+
+    pubnub.subscribe({
+        channel : '6VN85t32994Kb46KQu0fq1Bd6Jw8He04_dls_2',
+        message : function(m){
+            sendData(m, 'virus');
+        }
+    });
+    pubnub.subscribe({
+        channel : '6VN85t32994Kb46KQu0fq1Bd6Jw8He04_dls_34',
+        message : function(m){
+            sendData(m, 'srf1');
+        }
+    });
+    $(window).on('hashchange', function(){
+
+        pubnub.unsubscribe({
+            channel: channel,
+            message: function(m){console.log(m)}
+        });
+        if (location.hash == '#virus') {
+            channel = '6VN85t32994Kb46KQu0fq1Bd6Jw8He04_dls_2';
+        } else {
+            channel = '6VN85t32994Kb46KQu0fq1Bd6Jw8He04_dls_7';
+        }
+        pubnub.subscribe({
+            channel : channel,
+            message : function(m){
+                sendData(m);
+            }
+        });
+
+    });
+
+})();
+
+
+var spotifyTracker = [];
+var spotifyPopularity = [];
+var spotifyTitles = [];
+var trackCount = 1;
+var chart = false;
+var ctx = document.getElementById("myChart").getContext("2d");
+
+var dataset = {
+    virus: [],
+    srf3: [],
+    srf1: []
+};
+
+$(document).ready(function(){
+    $.getJSON('fake.json', function(data){
+        $.each(data.virus, function(index, item){
+
+            render(item, 'virus');
+
+        })
+        $.each(data.srf3, function(index, item){
+
+            render(item, 'srf3');
+        })
+        $.each(data.srf1, function(index, item){
+
+            render(item, 'srf1');
+        })
+    });
+});
+
+
+function render(data, channel) {
+
+    try {
+        if (data.youtube.id.videoId) {
+            $('.youtube.'+channel).prepend('<iframe width="300" height="200" src="//www.youtube.com/embed/'+data.youtube.id.videoId+'?controls=0" frameborder="0" allowfullscreen></iframe>');
+        }
+        if (data.lyrics) {
+            //$('.youtube.'+channel).prepend('<blockquote>'+data.lyrics+'</blockquote>');
+        }
+        if (data.spotify != null) {
+            spotifyTracker.push(data.spotify.id);
+            spotifyPopularity.push(data.spotify.popularity);
+            spotifyTitles.push("Track "+trackCount++);
+            //$('.spotify-player iframe').attr('src', 'https://embed.spotify.com/?uri=spotify:trackset:Played+Songs:'+spotifyTracker.reverse().join(','));
+            Chart.defaults.global.responsive = true;
+            Chart.defaults.global.scaleShowLabels = false;
+            dataset[channel].push(data.spotify.popularity);
+            paintGraph()
+
+        }
+    } catch (e){
+        console.log(e)
+    }
+
+}
+function sendData(m, channel) {
+    $.ajax({
+        type: "POST",
+        url: 'ajax.php',
+        data: {songdata: m},
+        success: function(data){
+            render(data, channel);
+        }
+    });
+}
+function paintGraph()
+{
+    var lengthVirus = dataset.virus.length,
+            lengthsrf3 = dataset.srf3.length,
+            points = 0
+            titles = [];
+    if (lengthsrf3 > lengthVirus) {
+        points = lengthsrf3;
+    } else {
+        points = lengthVirus;
+    }
+    for (i=1; i<=points;i++) {
+        titles.push('Track #'+i);
+    }
+    var chartdata = {
+        labels: titles,
+        datasets: [
+            {
+                label: "Virus",
+                fillColor: "#a4fe00",
+                strokeColor: "#a4fe00",
+                pointColor: "#a4fe00",
+                pointStrokeColor: "#a4fe00",
+                pointHighlightFill: "#a4fe00",
+                pointHighlightStroke: "rgba(220,220,220,1)",
+                data: dataset.virus
+            },
+            {
+                label: "SRF 3",
+                fillColor: "#FFF",
+                strokeColor: "#FFF",
+                pointColor: "#FFF",
+                pointStrokeColor: "#FFF",
+                pointHighlightFill: "#000",
+                pointHighlightStroke: "rgba(220,220,220,1)",
+                data: dataset.srf3
+            },
+            {
+                label: "SRF 1",
+                fillColor: "#fba400",
+                strokeColor: "#fba400",
+                pointColor: "#fba400",
+                pointStrokeColor: "#fba400",
+                pointHighlightFill: "#FFF",
+                pointHighlightStroke: "rgba(220,220,220,1)",
+                data: dataset.srf1
+            }
+        ]
+    };
+console.log(chartdata);
+    var options = {
+
+        ///Boolean - Whether grid lines are shown across the chart
+        scaleShowGridLines : false,
+
+        //String - Colour of the grid lines
+        scaleGridLineColor : "rgba(0,0,0,.05)",
+
+        //Number - Width of the grid lines
+        scaleGridLineWidth : 1,
+
+        //Boolean - Whether the line is curved between points
+        bezierCurve : true,
+
+        //Number - Tension of the bezier curve between points
+        bezierCurveTension : 0.4,
+
+        //Boolean - Whether to show a dot for each point
+        pointDot : true,
+
+        //Number - Radius of each point dot in pixels
+        pointDotRadius : 20,
+
+        //Number - Pixel width of point dot stroke
+        pointDotStrokeWidth : 8,
+
+        //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
+        pointHitDetectionRadius : 20,
+
+        //Boolean - Whether to show a stroke for datasets
+        datasetStroke : true,
+
+        //Number - Pixel width of dataset stroke
+        datasetStrokeWidth : 8,
+
+        //Boolean - Whether to fill the dataset with a colour
+        datasetFill : false
+        //String - A legend template
+
+    };
+
+    chart = new Chart(ctx).Line(chartdata, options);
+
+}
+
+</script>
+
+</body>
+</html>

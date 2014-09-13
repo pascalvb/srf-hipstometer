@@ -1,0 +1,79 @@
+body {
+  background: #45484d;
+  background: -moz-linear-gradient(left,  #45484d 0%, #000000 100%);
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%,#45484d), color-stop(100%,#000000));
+  background: -webkit-linear-gradient(left,  #45484d 0%,#000000 100%);
+  background: -o-linear-gradient(left,  #45484d 0%,#000000 100%);
+  background: -ms-linear-gradient(left,  #45484d 0%,#000000 100%);
+  background: linear-gradient(to right,  #45484d 0%,#000000 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=1 );
+  height: 100%;
+  width: 100%;
+}
+
+h1 {
+  color: #EEE;
+  font-size: 42px;
+  font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+}
+
+.chart {
+  position: fixed;
+  bottom: 0;
+  left:0;
+  height: auto;
+  width: 100%;
+}
+
+.lyrics {
+  width: 560px;
+  height: 100%;
+  position: absolute;
+  right: 560px;
+  top: 100px;
+  blockquote {
+    color: #FFF;
+    font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+    font-size: 21px;
+    background: rgba(0,0,0,0.5);
+    padding: 10px;
+  }
+}
+
+.stream {
+
+  width: 560px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 100px;
+}
+.youtube {
+  height: 200px;
+  width: 1000000px;
+  position: absolute;
+  left: 20px;
+  padding: 20px;
+  padding-left: 280px;
+
+  &.virus {
+    background: #a4fe00 url(../images/virus.png) no-repeat;
+    top: 540px;
+  }
+  &.srf3 {
+    background: #FFF url('http://www.srf.ch/extension/srf_shared/design/standard/images/radio/radio-srf-3-large-banner.jpeg') no-repeat;
+    top: 280px;
+    background-position: -220px 1px;
+  }
+  &.srf1 {
+    background: #fba400 url(http://www.srf.ch/extension/srf_shared/design/standard/images/radio/radio-srf-1-large-banner.jpeg) no-repeat;
+    top: 20px;
+    background-position: -40px 1px;
+
+  }
+  iframe {
+    float: left;
+    padding-right: 20px;
+  }
+  clear: both;
+}
