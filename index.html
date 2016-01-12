@@ -121,7 +121,6 @@ function render(data, channel) {
             spotifyTracker.push(data.spotify.id);
             spotifyPopularity.push(data.spotify.popularity);
             spotifyTitles.push("Track "+trackCount++);
-            //$('.spotify-player iframe').attr('src', 'https://embed.spotify.com/?uri=spotify:trackset:Played+Songs:'+spotifyTracker.reverse().join(','));
             Chart.defaults.global.responsive = true;
             Chart.defaults.global.scaleShowLabels = false;
             dataset[channel].push(data.spotify.popularity);
